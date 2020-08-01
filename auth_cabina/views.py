@@ -1,13 +1,15 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, permissions, status
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import json
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from .serializers import *
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -23,14 +25,18 @@ class LoginView(APIView):
     def get(self, request):
         return Response({'detail': 'Request not valid'}, status=status.HTTP_400_BAD_REQUEST)
 
+    @method_decorator(csrf_exempt)
     def post(self, request):
-        data = json.loads(request.body)
-        user = authenticate(request, username=data['username'], password=data['password'])
-        if user is not None:
-            login(request,user)
-            return Response({'detail': 'successful'})
+        if not request.user.is_authenticated:
+            data = json.loads(request.body)
+            user = authenticate(request, username=data['username'], password=data['password'])
+            if user is not None:
+                login(request,user)
+                return Response({'detail': 'successful'})
+            else:
+                return Response({'detail': 'Credentials not valid'})
         else:
-            return Response({'detail': 'Credentials not valid'})
+            return Response({'detail': 'There is an user active. Logout first.'})
 
 class LogoutView(APIView):
     """
