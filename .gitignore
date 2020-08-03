@@ -130,3 +130,4 @@ dmypy.json
 
 #Others
 *.sqlite3
+media/*

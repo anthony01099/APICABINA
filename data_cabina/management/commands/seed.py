@@ -1,6 +1,10 @@
-import random
+import random, time, io
+import numpy
+from PIL import Image
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from  django.core.files.images import ImageFile
 from data_cabina.models import *
 
 class Command(BaseCommand):
@@ -50,13 +54,23 @@ class Command(BaseCommand):
             self.cabins.append(cabin)
 
     def seed_captures(self):
-        num_captures = 20
+        num_captures = 5
         for cabin in self.cabins:
             for i in range(num_captures):
                 temp = random.uniform(36,43)
                 is_wearing_mask = random.uniform(0,1) > 0.5
                 is_image_saved = True
-                Capture.objects.create(cabin = cabin,
-                                       temp = temp,
-                                       is_wearing_mask = is_wearing_mask,
-                                       is_image_saved = is_image_saved)
+                image = self.create_image()
+                capture = Capture(cabin = cabin,
+                                  temp = temp,
+                                  is_wearing_mask = is_wearing_mask,
+                                  is_image_saved = is_image_saved)
+                capture.save()
+                capture.image.save(str(capture.id) + '.jpg', image)
+
+    def create_image(self, width = 512, height = 256):
+        rgb_array = numpy.random.rand(int(height) ,int(width),3) * 255
+        image = Image.fromarray(rgb_array.astype('uint8')).convert('RGB')
+        image = io.BytesIO(image.tobytes())
+        file = ImageFile(image)
+        return file

@@ -1,6 +1,6 @@
 from django.db import models
 from api_cabina.models import *
-
+from .utils import media_upload_to
 
 class Company(BaseModel):
     """
@@ -25,7 +25,7 @@ class Capture(BaseModel):
     temp = models.FloatField()
     is_wearing_mask = models.BooleanField(default=False)
     is_image_saved = models.BooleanField(default=False)
-    image = models.ImageField(null=True, blank=True)
+    image = models.ImageField(upload_to = media_upload_to,null=True, blank=True)
 
 class Setting(BaseModel):
     """
