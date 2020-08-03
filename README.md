@@ -8,3 +8,14 @@ API for managing a biosecurity system
 - GET /api/auth/logout/  -> Logout from current session
 - GET /api/auth/ -> Get all system's users
 - GET /api/auth/user_id/ -> Get user info
+
+
+### Data Base Entity Relationship Diagram
+![ERD](./docs/api_cabina_erd.png)
+
+### Run tests
+
+...
+
+### Run development server
+    python manage.py runserver 80
