@@ -19,3 +19,7 @@ API for managing a biosecurity system
 
 ### Run development server
     python manage.py runserver 80
+
+### Seed database with test data
+    python manage.py seed
+Test user: test. Password: test_password
