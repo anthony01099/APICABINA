@@ -19,6 +19,32 @@ class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+class CompanyCabins(APIView):
+    """
+        Returns cabins for a particular company
+    """
+    def get(self, request, company_id):
+        cabins = Cabin.objects.filter(company__id=company_id)
+        serializer = CabinSerializer(cabins, many=True)
+        return Response(serializer.data)
+
+class CompanyCaptures(APIView):
+    """
+        Returns captures for a particular company
+    """
+    def get(self, request, company_id):
+        captures = Capture.objects.filter(cabin__company__id=company_id)
+        serializer = CaptureSerializer(captures, many=True)
+        return Response(serializer.data)
+
+class CabinCaptures(APIView):
+    """
+        Returns captures for a particular cabin
+    """
+    def get(self, request, cabin_id):
+        captures = Capture.objects.filter(cabin__id=cabin_id)
+        serializer = CaptureSerializer(captures, many=True)
+        return Response(serializer.data)
 
 class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     """

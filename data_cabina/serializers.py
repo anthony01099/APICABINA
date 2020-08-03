@@ -6,7 +6,7 @@ from .models import *
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
-        fields = ['name','description','users']
+        fields = ['id','name','description','users']
 
 class CabinSerializer(serializers.ModelSerializer):
     class Meta:

@@ -20,7 +20,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('auth_cabina.urls')),
-    path('api/captures/', include('data_cabina.urls')),
+    path('api/data/', include('data_cabina.urls')),
 ]
 
 
