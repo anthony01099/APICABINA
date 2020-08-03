@@ -1,6 +1,6 @@
-from django.urls import path
-
-from . import views
+from django.urls import path, include
+from rest_framework import routers
+from .views import *
 
 app_name = 'auth_cabina'
 
