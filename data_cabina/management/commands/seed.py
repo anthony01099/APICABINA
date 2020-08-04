@@ -28,9 +28,10 @@ class Command(BaseCommand):
 
     def seed_user(self):
         try:
-            user = User.objects.get(username='test')
+            user = User.objects.get(username='test1')
         except:
-            self.user = User(username='test', password='test_password')
+            self.user = User(username='test1')
+            self.user.set_password("test_password")
             self.user.save()
         else:
             self.user = user
