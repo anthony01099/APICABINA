@@ -51,7 +51,12 @@ class CabinCaptures(APIView):
 
     def get(self, request, cabin_id):
         company = request.user.client.company
-        if company != Cabin.objects.get(id=cabin_id).company:
+        cabin = Cabin.objects.filter(id=cabin_id)
+
+        if not cabin.exists():
+            return Response({"detail": "You do not have access to this"})
+
+        if company != cabin.first():
             return Response({"detail": "You do not have access to this"})
 
         captures = Capture.objects.filter(cabin__id=cabin_id)
