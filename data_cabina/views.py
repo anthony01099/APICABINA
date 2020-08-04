@@ -46,7 +46,7 @@ class CabinCaptures(APIView):
         serializer = CaptureSerializer(captures, many=True)
         return Response(serializer.data)
 
-class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
+class CaptureViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows cabin captures to be seen.
     """
