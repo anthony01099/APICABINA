@@ -1,6 +1,7 @@
 from django.db import models
 from api_cabina.models import *
-from .utils import media_upload_to, get_image_base64
+from .utils import media_upload_to, generate_token
+from  django.conf import settings
 
 class Company(BaseModel):
     """
@@ -8,14 +9,20 @@ class Company(BaseModel):
     """
     name = models.CharField(max_length=20)
     description = models.TextField()
-    users = models.ManyToManyField('auth.User')
+
+class CabinToken(BaseModel):
+    """
+        Provides tokens to uniquely register each cabin.
+    """
+    id = models.CharField(max_length = settings.CABIN_TOKEN_LENGTH, primary_key = True, default = generate_token, editable = False)
+    is_used = models.BooleanField(default=False)
 
 class Cabin(BaseModel):
     """
         Cabins installed for a particular company
     """
-    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True)
-    token = models.BigIntegerField(null=True)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE)
+    token = models.ForeignKey('CabinToken', on_delete=models.CASCADE)
 
 class Capture(BaseModel):
     """
