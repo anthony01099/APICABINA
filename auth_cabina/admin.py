@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from django.contrib.admin import SimpleListFilter
+from django.contrib.admin import SimpleListFilter, ModelAdmin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
@@ -15,6 +15,10 @@ class UserFilter(SimpleListFilter):
     parameter_name = 'is_staff'
 
     def lookups(self, request, model_admin):
+
+        if request.user.is_superuser:
+            return tuple([])
+
         company = Company.objects.filter(users=request.user).first()
         related_objects = set(company.users.all())
         return [(related_obj.id, str(related_obj)) for related_obj in related_objects]
@@ -32,11 +36,21 @@ class UserAdmin(UserAdmin):
     view_on_site = False
     list_display = ('username', 'first_name', 'last_name', 'is_active', 'is_staff', 'date_joined', 'last_login')
     list_filter = (UserFilter,)
-    fieldsets = (
-        ('Data', {'fields': ('username', 'email', 'first_name', 'last_name', 'password')}),
-        ('Activation/Deactivation', {'fields': ('is_active',)}),
-        ('Permissions', {'fields': ('is_staff', 'groups',)})
-    )
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+
+        fieldsets = [
+            ('Data', {'fields': ('username', 'email', 'first_name', 'last_name', 'password')}),
+            ('Activation/Deactivation', {'fields': ('is_active',)}),
+            ['Permissions', {'fields': ('is_staff',)}]
+        ]
+        if not request.user.is_superuser:
+            self.fieldsets = fieldsets
+        else:
+
+            fieldsets[2] = ('Permissions', {'fields': ('is_staff', 'groups', 'is_superuser',)})
+            self.fieldsets = fieldsets
+        return super(UserAdmin, self).get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
@@ -46,7 +60,4 @@ class UserAdmin(UserAdmin):
         company = Company.objects.filter(users=request.user).first()
         company.users.add(obj)
         company.save()
-        print(request.user)
-        print(obj)
-
         return save_result
