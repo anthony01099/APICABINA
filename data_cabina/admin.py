@@ -13,3 +13,8 @@ class CompanyAdmin(admin.ModelAdmin):
 class CabinAdmin(admin.ModelAdmin):
     list_display = ('id','company',)
     search_fields = ('id','company',)
+
+@admin.register(CabinToken)
+class CabinTokenAdmin(admin.ModelAdmin):
+    list_display = ('id','is_used',)
+    search_fields = ('is_used',)

@@ -14,5 +14,6 @@ urlpatterns = [
     path('captures_company/', CompanyCaptures.as_view(), name = 'CompanyCaptures'),
     path('captures_cabin/<int:cabin_id>/', CabinCaptures.as_view(), name = 'CabinCaptures'),
     path('captures_create/', CreateCapture.as_view(), name = 'CreateCapture'),
+    path('register_cabin/', RegisterCabin.as_view(), name = 'RegisterCabin'),
     path('', include(router.urls)),
 ]

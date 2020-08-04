@@ -96,3 +96,28 @@ class CreateCapture(APIView):
                 image_bytes.write(data['image_base64'].encode())
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
             return Response({'detail': 'successful'})
+
+class RegisterCabin(APIView):
+    """
+        Register a cabin using a token.
+    """
+    def get(self, request):
+        return Response({'detail': 'Error. Must use post to register a cabin'})
+
+    def post(self, request):
+        #Retrieve data
+        company = request.user.client.company
+        token_str = request.data['token']
+        try:
+            token = CabinToken.objects.get(id=token_str)
+        except:
+            return Response({'detail': 'Token not valid'})
+        else:
+            if token.is_used:
+                return Response({'detail': 'Token already used'})
+            else:
+                cabin = Cabin(company= company, token = token)
+                cabin.save()
+                token.is_used = True
+                token.save()
+                return Response({'detail': 'successful', 'cabin_id': cabin.id})
