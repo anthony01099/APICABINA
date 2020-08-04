@@ -15,7 +15,7 @@ API for managing a biosecurity system
 - GET /api/data/captures_cabin/cabin_id/ --> Get captures for a cabin
 - GET /api/data/captures --> Get all system's captures
 - GET /api/data/captures/capture_id/ --> Get capture info
-- POST [cabin_id,temp,is_wearing_mask,is_image_saved,image_base64]  /api/data/captures_create/ --> Create a capture.
+- POST [token,temp,is_wearing_mask,is_image_saved,image_base64]  /api/data/captures_create/ --> Create a capture.
 - POST [token]  /api/data/register_cabin/ --> Register cabin
 
 ### Data Base Entity Relationship Diagram

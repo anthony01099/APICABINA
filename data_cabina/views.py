@@ -85,9 +85,9 @@ class CreateCapture(APIView):
         data = request.data
         # Get cabin instance
         try:
-            cabin = Cabin.objects.get(id=data['cabin_id'])
+            cabin = Cabin.objects.get(token__id = data['token'])
         except:
-            return Response({'detail': 'failed, invalid cabin_id'})
+            return Response({'detail': 'failed, invalid token'})
         else:
             # Create capture object
             capture = Capture(cabin=cabin,
