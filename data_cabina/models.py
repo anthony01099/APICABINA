@@ -1,7 +1,8 @@
 from django.db import models
 from api_cabina.models import *
 from .utils import media_upload_to, generate_token
-from  django.conf import settings
+from django.conf import settings
+
 
 class Company(BaseModel):
     """
@@ -10,12 +11,14 @@ class Company(BaseModel):
     name = models.CharField(max_length=20)
     description = models.TextField()
 
+
 class CabinToken(models.Model):
     """
         Provides tokens to uniquely register each cabin.
     """
-    id = models.CharField(max_length = settings.CABIN_TOKEN_LENGTH, primary_key = True, default = generate_token, editable = False)
+    id = models.CharField(max_length=settings.CABIN_TOKEN_LENGTH, primary_key=True, default=generate_token, editable=False)
     is_used = models.BooleanField(default=False)
+
 
 class Cabin(BaseModel):
     """
@@ -23,6 +26,7 @@ class Cabin(BaseModel):
     """
     company = models.ForeignKey('Company', on_delete=models.CASCADE)
     token = models.ForeignKey('CabinToken', on_delete=models.CASCADE)
+
 
 class Capture(BaseModel):
     """
@@ -32,11 +36,12 @@ class Capture(BaseModel):
     temp = models.FloatField()
     is_wearing_mask = models.BooleanField(default=False)
     is_image_saved = models.BooleanField(default=False)
-    image = models.FileField(upload_to = media_upload_to,null=True, blank=True)
+    image = models.FileField(upload_to=media_upload_to, null=True, blank=True)
 
     @property
     def image_base64(self):
         return self.image.read()
+
 
 class Setting(models.Model):
     """
@@ -44,4 +49,4 @@ class Setting(models.Model):
     """
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    save_images = models.BooleanField(default=False) #Specify if images should be saved from cabins
+    save_images = models.BooleanField(default=False)  # Specify if images should be saved from cabins

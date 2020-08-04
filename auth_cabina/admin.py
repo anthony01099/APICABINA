@@ -5,6 +5,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
+from auth_cabina.models import Client
 from data_cabina.models import Company
 
 admin.site.unregister(User)
@@ -58,6 +59,9 @@ class UserAdmin(UserAdmin):
 
         save_result = super().save_model(request, obj, form, change)
         company = Company.objects.filter(users=request.user).first()
-        company.users.add(obj)
+        client = Client()
+        client.company = company
+        client.user = obj
         company.save()
+        client.save()
         return save_result
