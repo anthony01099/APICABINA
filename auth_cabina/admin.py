@@ -10,6 +10,8 @@ from data_cabina.models import Company
 
 admin.site.unregister(User)
 
+admin.site.register(Client)
+
 
 class UserFilter(SimpleListFilter):
     title = 'is_staff'
@@ -19,17 +21,20 @@ class UserFilter(SimpleListFilter):
 
         if request.user.is_superuser:
             return tuple([])
-
-        company = Company.objects.filter(users=request.user).first()
-        related_objects = set(company.users.all())
+        company = Client.objects.filter(user=request.user).first().company
+        clients = company.client_set.all()
+        users = [client.user for client in clients]
+        related_objects = set(users)
         return [(related_obj.id, str(related_obj)) for related_obj in related_objects]
 
     def queryset(self, request, queryset):
         if request.user.is_superuser:
             return queryset
-
-        company = Company.objects.filter(users=request.user).first()
-        return company.users.all()
+        company = Client.objects.filter(user=request.user).first().company
+        clients = company.client_set.all()
+        users = [client.user.username for client in clients]
+        users = User.objects.filter(username__in=users)
+        return users
 
 
 @admin.register(User)
@@ -58,7 +63,8 @@ class UserAdmin(UserAdmin):
             return super().save_model(request, obj, form, change)
 
         save_result = super().save_model(request, obj, form, change)
-        company = Company.objects.filter(users=request.user).first()
+
+        company = Client.objects.filter(user=request.user).first().company
         client = Client()
         client.company = company
         client.user = obj
