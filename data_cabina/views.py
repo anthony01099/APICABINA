@@ -1,4 +1,4 @@
-import json
+import json, io
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, permissions, status
@@ -53,3 +53,31 @@ class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Capture.objects.all().order_by('-created_at')
     serializer_class = CaptureSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class CreateCapture(APIView):
+    """
+        Create a capture with a post request.
+    """
+    def get(self, request):
+        return Response({'detail': 'Error. Must use post to create a capture'})
+
+    def post(self, request):
+        data = request.data
+        #Get cabin instance
+        try:
+            cabin = Cabin.objects.get(id=data['cabin_id'])
+        except:
+            return Response({'detail': 'failed, invalid cabin_id'})
+        else:
+            #Create capture object
+            capture = Capture(cabin= cabin,
+                              temp= data['temp'],
+                              is_wearing_mask= data['is_wearing_mask'],
+                              is_image_saved= data['is_image_saved'])
+            capture.save()
+            #Create image file
+            if data['is_image_saved']:
+                image_bytes = io.BytesIO()
+                image_bytes.write(data['image_base64'].encode())
+                capture.image.save(str(capture.id) + '.txt', image_bytes)
+            return Response({'detail': 'successful'})

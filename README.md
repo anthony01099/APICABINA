@@ -14,10 +14,8 @@ API for managing a biosecurity system
 - GET /api/data/captures_company/company_id/ --> Get captures for a company
 - GET /api/data/captures_cabin/cabin_id/ --> Get captures for a cabin
 - GET /api/data/captures --> Get all system's captures
-- POST [cabin_id,temp,is_wearing_mask,is_image_saved,image]  /api/data/captures --> Create a capture.
 - GET /api/data/captures/capture_id/ --> Get capture info
-- POST [cabin_id,temp,is_wearing_mask,is_image_saved,image]  /api/data/captures/capture_id/ --> Update a capture.
-- DELETE /api/data/captures/capture_id/ --> Delete a capture
+- POST [cabin_id,temp,is_wearing_mask,is_image_saved,image_base64]  /api/data/captures_create/ --> Create a capture.
 
 ### Data Base Entity Relationship Diagram
 ![ERD](./docs/api_cabina_erd.png)
