@@ -1,6 +1,6 @@
 from django.db import models
 from api_cabina.models import *
-from .utils import media_upload_to
+from .utils import media_upload_to, get_image_base64
 
 class Company(BaseModel):
     """
@@ -26,6 +26,11 @@ class Capture(BaseModel):
     is_wearing_mask = models.BooleanField(default=False)
     is_image_saved = models.BooleanField(default=False)
     image = models.ImageField(upload_to = media_upload_to,null=True, blank=True)
+
+    @property
+    def image_base64(self):
+        return get_image_base64(self.image)
+
 
 class Setting(BaseModel):
     """
