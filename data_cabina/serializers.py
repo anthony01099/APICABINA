@@ -16,4 +16,4 @@ class CabinSerializer(serializers.ModelSerializer):
 class CaptureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Capture
-        fields = ['id','cabin','temp','is_wearing_mask','is_image_saved','image_base64']
+        fields = ['id','cabin','temp','is_wearing_mask','is_image_saved','image_base64','created_at']
