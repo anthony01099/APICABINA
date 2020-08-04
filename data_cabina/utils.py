@@ -7,7 +7,7 @@ def media_upload_to(instance, filename):
     path = current.strftime("%Y%m%d")
     cabin = instance.cabin.id
     time = current.strftime("%H%M%S")
-    return '{}/cabin-{}-{}.jpg'.format(path, str(cabin), time)
+    return '{}/cabin-{}-{}.txt'.format(path, str(cabin), time)
 
 
 def get_image_base64(django_file):

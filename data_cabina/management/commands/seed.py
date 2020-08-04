@@ -1,4 +1,4 @@
-import random, time, io
+import random, time, io, base64
 import numpy
 from PIL import Image
 from django.core.management.base import BaseCommand
@@ -59,19 +59,21 @@ class Command(BaseCommand):
                 temp = random.uniform(36, 43)
                 is_wearing_mask = random.uniform(0, 1) > 0.5
                 is_image_saved = True
-                image = self.create_image()
+                image_base64 = self.create_image()
 
                 capture = Capture(cabin=cabin,
                                   temp=temp,
                                   is_wearing_mask=is_wearing_mask,
                                   is_image_saved=is_image_saved)
                 capture.save()
-                capture.image.save(str(capture.id) + '.jpg', image)
+                capture.image.save(str(capture.id) + '.txt', image_base64)
 
     def create_image(self, width=512, height=256):
         rgb_array = numpy.random.rand(int(height), int(width), 3) * 255
         image = Image.fromarray(rgb_array.astype('uint8')).convert('RGB')
         image_bytes = io.BytesIO()
         image.save(image_bytes, "JPEG")
-        image_bytes.seek(0)
+        img_str = base64.b64encode(image_bytes.getvalue())
+        image_bytes = io.BytesIO()
+        image_bytes.write(img_str)
         return image_bytes

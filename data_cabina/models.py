@@ -25,12 +25,11 @@ class Capture(BaseModel):
     temp = models.FloatField()
     is_wearing_mask = models.BooleanField(default=False)
     is_image_saved = models.BooleanField(default=False)
-    image = models.ImageField(upload_to = media_upload_to,null=True, blank=True)
+    image = models.FileField(upload_to = media_upload_to,null=True, blank=True)
 
     @property
     def image_base64(self):
-        return get_image_base64(self.image)
-
+        return self.image.read()
 
 class Setting(BaseModel):
     """
