@@ -10,7 +10,7 @@ class Company(BaseModel):
     name = models.CharField(max_length=20)
     description = models.TextField()
 
-class CabinToken(BaseModel):
+class CabinToken(models.Model):
     """
         Provides tokens to uniquely register each cabin.
     """
@@ -38,7 +38,7 @@ class Capture(BaseModel):
     def image_base64(self):
         return self.image.read()
 
-class Setting(BaseModel):
+class Setting(models.Model):
     """
         Settings for a company
     """

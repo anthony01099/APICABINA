@@ -4,7 +4,7 @@ from PIL import Image
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from data_cabina.models import *
-
+from auth_cabina.models import *
 
 class Command(BaseCommand):
     help = 'Seeds the database.'
@@ -15,9 +15,6 @@ class Command(BaseCommand):
         print('Seeding user')
         self.seed_user()
         #
-        print('Seeding companies')
-        self.seed_company()
-        #
         print('Seeding cabins')
         self.seed_cabins()
         #
@@ -26,30 +23,33 @@ class Command(BaseCommand):
         #
         print('Done.')
 
-    def seed_user(self):
-        try:
-            user = User.objects.get(username='test1')
-        except:
-            self.user = User(username='test1')
-            self.user.set_password("test_password")
-            self.user.save()
-        else:
-            self.user = user
-
     def seed_company(self):
+        print('Seeding companies')
         n = random.randint(0, 100)
         self.company = Company(name='Company ' + str(n),
                                description='Description ' + str(n))
         self.company.save()
-        self.company.users.add(self.user)
-        self.company.save()
+
+    def seed_user(self):
+        try:
+            user = User.objects.get(username='test1')
+        except:
+            self.seed_company()
+            self.user = User(username='test1')
+            self.user.set_password("test_password")
+            self.user.save()
+            client = Client.objects.create(user=self.user,company=self.company)
+        else:
+            self.user = user
+            self.company = self.user.client.company
 
     def seed_cabins(self):
         num_cabins = 5
         self.cabins = []
         for i in range(num_cabins):
             n = random.randint(0, 10000)
-            cabin = Cabin(company=self.company)
+            token = CabinToken.objects.create(is_used = True)
+            cabin = Cabin(company=self.company, token = token)
             cabin.save()
             self.cabins.append(cabin)
 

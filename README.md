@@ -10,8 +10,8 @@ API for managing a biosecurity system
 - GET /api/auth/user_id/ --> Get user info
 - GET /api/data/company --> Get all system's companies
 - GET /api/data/company/company_id/ --> Get companies info
-- GET /api/data/cabins_company/company_id/ --> Get cabins for a company
-- GET /api/data/captures_company/company_id/ --> Get captures for a company
+- GET /api/data/cabins_company/ --> Get cabins for a company
+- GET /api/data/captures_company/ --> Get captures for a company
 - GET /api/data/captures_cabin/cabin_id/ --> Get captures for a cabin
 - GET /api/data/captures --> Get all system's captures
 - GET /api/data/captures/capture_id/ --> Get capture info
@@ -29,4 +29,4 @@ API for managing a biosecurity system
 
 ### Seed database with test data
     python manage.py seed
-Test user: test. Password: test_password
+Test user: test1. Password: test_password

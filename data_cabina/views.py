@@ -26,7 +26,7 @@ class CompanyCabins(APIView):
     """
 
     def get(self, request):
-        company = Company.objects.get(users=request.user)
+        company = request.user.client.company
         cabins = Cabin.objects.filter(company=company)
         serializer = CabinSerializer(cabins, many=True)
         return Response(serializer.data)
@@ -38,7 +38,7 @@ class CompanyCaptures(APIView):
     """
 
     def get(self, request):
-        company = Company.objects.get(users=request.user)
+        company = request.user.client.company
         captures = Capture.objects.filter(cabin__company=company)
         serializer = CaptureSerializer(captures, many=True)
         return Response(serializer.data)
@@ -50,7 +50,7 @@ class CabinCaptures(APIView):
     """
 
     def get(self, request, cabin_id):
-        company = Company.objects.get(users=request.user)
+        company = request.user.client.company
         if company != Cabin.objects.get(id=cabin_id).company:
             return Response({"detail": "You do not have access to this"})
 
