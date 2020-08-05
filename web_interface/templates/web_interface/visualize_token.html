@@ -12,25 +12,42 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <title>Create token</title>
+    <!-- QR library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+    <title>Visualize token</title>
 </head>
 <body>
-<h1>Create cabin tokens</h1>
-<p> Press on 'create' button to generate a QR code and register it on the system database. This code must be matched to a cabin for
-    authentication purposes.
-</p>
+<h1>New cabin token</h1>
 <br>
-<form action="{% url 'web_interface:CreateToken' %}"  method="post">
-{% csrf_token %}
-<input type="submit" name="create" value="Create" class="btn btn-success" style = "width: 100%;">
-</form>
+<b>Generated token:</b> {{cabin_token}}
+<br><br>
+<div>
+    <h2>Codigo QR:</h2>
+    <div id="codigo_qr" class="center"></div>
+</div>
+<a href="{% url 'web_interface:CreateToken' %}" class="btn btn-success" style = "width: 100%;" role="button">Generate new code</a>
+<script>
+$("#codigo_qr").qrcode({
+                   render: 'canvas',
+                   width: 400,
+                   height: 400,
+                   color: '#3a3',
+                   text: '{{cabin_token}}'
+               });
+</script>
 
 <style>
 body{
     background-color: #d9d9d9;
 }
+.center {
+  padding: 50px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
 </style>
-
 
 </body>
 </html>
