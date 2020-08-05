@@ -1,15 +1,13 @@
 import json, io
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, permissions, status
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.http import Http404, JsonResponse
+from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import viewsets, permissions, status
 from .serializers import *
 from .models import *
-
 
 class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -24,6 +22,7 @@ class CompanyCabins(APIView):
     """
         Returns cabins for a particular company
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         company = request.user.client.company
@@ -36,6 +35,7 @@ class CompanyCaptures(APIView):
     """
         Returns captures for a particular company
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         company = request.user.client.company
@@ -48,6 +48,7 @@ class CabinCaptures(APIView):
     """
         Returns captures for a particular cabin
     """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, cabin_id):
         company = request.user.client.company
@@ -72,22 +73,21 @@ class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CaptureSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
-class CreateCapture(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateCapture(View):
     """
         Create a capture with a post request.
     """
-
     def get(self, request):
-        return Response({'detail': 'Error. Must use post to create a capture'})
+        return JsonResponse({'detail': 'Error. Must use post to create a capture'})
 
     def post(self, request):
-        data = request.data
+        data = json.loads(request.body)
         # Get cabin instance
         try:
             cabin = Cabin.objects.get(token__id = data['token'])
         except:
-            return Response({'detail': 'failed, invalid token'})
+            return JsonResponse({'detail': 'failed, invalid token'})
         else:
             # Create capture object
             capture = Capture(cabin=cabin,
@@ -100,12 +100,14 @@ class CreateCapture(APIView):
                 image_bytes = io.BytesIO()
                 image_bytes.write(data['image_base64'].encode())
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
-            return Response({'detail': 'successful'})
+            return JsonResponse({'detail': 'successful'})
 
 class RegisterCabin(APIView):
     """
         Register a cabin using a token.
     """
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
         return Response({'detail': 'Error. Must use post to register a cabin'})
 

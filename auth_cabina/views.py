@@ -1,13 +1,15 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, permissions, status
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.http import Http404, JsonResponse
+from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import viewsets, permissions, status
 from .serializers import *
+from .models import *
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -17,26 +19,25 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
-class LoginView(APIView):
+@method_decorator(csrf_exempt, name='dispatch')
+class LoginView(View):
     """
         Allows user login
     """
     def get(self, request):
-        return Response({'detail': 'Request not valid'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'detail': 'Request not valid'}, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(csrf_exempt)
     def post(self, request):
         if not request.user.is_authenticated:
             data = json.loads(request.body)
             user = authenticate(request, username=data['username'], password=data['password'])
             if user is not None:
                 login(request,user)
-                return Response({'detail': 'successful'})
+                return JsonResponse({'detail': 'successful'})
             else:
-                return Response({'detail': 'Credentials not valid'})
+                return JsonResponse({'detail': 'Credentials not valid'})
         else:
-            return Response({'detail': 'There is an user active. Logout first.'})
+            return JsonResponse({'detail': 'There is an user active. Logout first.'})
 
 class LogoutView(APIView):
     """
