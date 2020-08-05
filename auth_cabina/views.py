@@ -8,16 +8,17 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
+from api_cabina.permissions import IsSuperUser
 from .serializers import *
 from .models import *
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    API endpoint that allows users to be viewed or edited.
+    API endpoint that allows users to be viewed
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginView(View):
@@ -43,6 +44,8 @@ class LogoutView(APIView):
     """
         Allows user logout
     """
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
         logout(request)
         return Response({'detail': 'Logout successful'})

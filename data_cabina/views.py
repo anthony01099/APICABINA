@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
+from api_cabina.permissions import IsSuperUser
 from .serializers import *
 from .models import *
 
@@ -15,8 +16,18 @@ class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
+
+class CompanyData(APIView):
+    """
+        Returns data for the user's company
+    """
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):           
+        company = request.user.client.company
+        serializer = CompanySerializer(company)
+        return Response(serializer.data)
 
 class CompanyCabins(APIView):
     """
@@ -71,7 +82,7 @@ class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Capture.objects.all().order_by('-created_at')
     serializer_class = CaptureSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCapture(View):
