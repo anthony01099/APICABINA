@@ -10,7 +10,7 @@ colorama==0.4.3
 cycler==0.10.0
 defusedxml==0.6.0
 diff-match-patch==20181111
-Django==3.0.1
+Django>=3.0.7
 django-cors-headers==3.2.1
 django-extensions==3.0.3
 django-filer==1.7.0
@@ -52,7 +52,7 @@ odfpy==1.4.0
 openpyxl==3.0.3
 pandas==0.25.3
 pdf2image==1.13.1
-Pillow==6.2.1
+Pillow>=7.1.0
 psycopg2-binary==2.8.4
 pydot==1.4.1
 PyJWT==1.7.1
