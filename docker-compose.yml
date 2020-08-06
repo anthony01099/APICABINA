@@ -8,13 +8,13 @@ services:
          - ./:/usr/src/app
          - media:/usr/src/app/media
 
-        environment:
-         - "DATABASE_HOST=postgres"
-         - "DATABASE_NAME=cabina"
-         - "DATABASE_USERNAME=cabina"
-         - "DATABASE_PASSWORD=dbpassworD12!"
+       environment:
+          - "DATABASE_HOST=postgres"
+          - "DATABASE_NAME=cabina"
+          - "DATABASE_USERNAME=cabina"
+          - "DATABASE_PASSWORD=dbpassworD12!"
 
-        networks:
+       networks:
           - backend
        depends_on:
           - postgres
