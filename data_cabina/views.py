@@ -68,7 +68,7 @@ class CompanyCaptures(CompanyAbstractView):
     def get(self, request):
         result = self.check(request)
         if self.company:
-            captures = Capture.objects.filter(cabin__company=self.company)
+            captures = Capture.objects.filter(cabin__company=self.company).order_by('-created_at')
             serializer = CaptureSerializer(captures, many=True)
             return Response(serializer.data)
         return result
@@ -91,7 +91,7 @@ class CabinCaptures(CompanyAbstractView):
             if self.company != cabin.first().company:
                 return Response({"detail": "You do not have access to this"})
 
-            captures = Capture.objects.filter(cabin__id=cabin_id)
+            captures = Capture.objects.filter(cabin__id=cabin_id).order_by('-created_at')
             serializer = CaptureSerializer(captures, many=True)
             return Response(serializer.data)
         return result
@@ -155,7 +155,7 @@ class RegisterCabin(CompanyAbstractView):
                 if token.is_used:
                     return Response({'detail': 'Token already used'})
                 else:
-                    cabin = Cabin(company= company, token = token)
+                    cabin = Cabin(company= self.company, token = token)
                     cabin.save()
                     token.is_used = True
                     token.save()

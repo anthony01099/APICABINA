@@ -1,6 +1,7 @@
 import json, random, numpy, base64
 from PIL import Image
 from django.test import TestCase, Client
+from django.contrib.auth.models import User
 from .models import *
 from auth_cabina.models import Client as User_client
 from .views import *
@@ -70,7 +71,7 @@ class CreateCaptureTestCase(DataCabinaTestCase):
 
     def test_captures_data(self):
         """Test if data is correctly captured"""
-        response = self.c.post('/api/data/captures_create/', self.data)        
+        response = self.c.post('/api/data/captures_create/', self.data)
         self.assertEqual(response.status_code, 200, response.content)
         content = json.loads(response.content)
         self.assertEqual(content['detail'], 'successful')
