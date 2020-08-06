@@ -37,7 +37,7 @@ services:
        container_name: "nginx"
        volumes:
           - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-          - ./GestionEntrenamiento/static/:/usr/src/app/static/:ro
+          - ./web_interface/admin/:/usr/src/app/static/admin/:ro
           - media:/usr/src/media:ro
        ports:
           - "80:80"
