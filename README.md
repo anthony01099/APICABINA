@@ -37,3 +37,13 @@ API for managing a biosecurity system
 ### Seed database with test data
     python manage.py seed
 Test user: test1. Password: test_password
+
+## User admin
+To create an admin user for a company:
+
+1-Create the user.
+2-Add the user to the "Company admin" group.
+3-Mark the user as "Staff User". 
+4-Create the relation user-company
+
+
