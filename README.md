@@ -41,9 +41,9 @@ Test user: test1. Password: test_password
 ## User admin
 To create an admin user for a company:
 
-1-Create the user.
-2-Add the user to the "Company admin" group.
-3-Mark the user as "Staff User". 
-4-Create the relation user-company
+1-Create the user.\n
+2-Add the user to the "Company admin" group.\n
+3-Mark the user as "Staff User".\n
+4-Create a new Client object with the user and the company.\n
 
 
