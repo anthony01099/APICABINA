@@ -18,63 +18,83 @@ class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
-class CompanyData(APIView):
+class CompanyAbstractView(APIView):
     """
-        Returns data for the user's company
+        Abstract view for retrieving company data
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request):           
-        company = request.user.client.company
-        serializer = CompanySerializer(company)
-        return Response(serializer.data)
+    def __init__(self,*args,**kwargs):
+        super(CompanyAbstractView,self).__init__(*args,**kwargs)
+        self.company = None
 
-class CompanyCabins(APIView):
+    def check(self, request):
+        try:
+            self.company = request.user.client.company
+        except:
+            return Response({'detail': 'No companies related to current user.'})
+
+class CompanyData(CompanyAbstractView):
+    """
+        Returns data for the user's company
+    """
+    def get(self, request):
+        result = self.check(request)
+        if self.company:
+            serializer = CompanySerializer(self.company)
+            return Response(serializer.data)
+        return result
+
+class CompanyCabins(CompanyAbstractView):
     """
         Returns cabins for a particular company
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        company = request.user.client.company
-        cabins = Cabin.objects.filter(company=company)
-        serializer = CabinSerializer(cabins, many=True)
-        return Response(serializer.data)
+        result = self.check(request)
+        if self.company:
+            cabins = Cabin.objects.filter(company = self.company)
+            serializer = CabinSerializer(cabins, many=True)
+            return Response(serializer.data)
+        return result
 
-
-class CompanyCaptures(APIView):
+class CompanyCaptures(CompanyAbstractView):
     """
         Returns captures for a particular company
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        company = request.user.client.company
-        captures = Capture.objects.filter(cabin__company=company)
-        serializer = CaptureSerializer(captures, many=True)
-        return Response(serializer.data)
+        result = self.check(request)
+        if self.company:
+            captures = Capture.objects.filter(cabin__company=self.company)
+            serializer = CaptureSerializer(captures, many=True)
+            return Response(serializer.data)
+        return result
 
 
-class CabinCaptures(APIView):
+class CabinCaptures(CompanyAbstractView):
     """
         Returns captures for a particular cabin
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, cabin_id):
-        company = request.user.client.company
-        cabin = Cabin.objects.filter(id=cabin_id)
+        result = self.check(request)
+        if self.company:
+            cabin = Cabin.objects.filter(id=cabin_id)
 
-        if not cabin.exists():
-            return Response({"detail": "You do not have access to this"})
+            if not cabin.exists():
+                return Response({"detail": "You do not have access to this"})
 
-        if company != cabin.first().company:
-            return Response({"detail": "You do not have access to this"})
+            if self.company != cabin.first().company:
+                return Response({"detail": "You do not have access to this"})
 
-        captures = Capture.objects.filter(cabin__id=cabin_id)
-        serializer = CaptureSerializer(captures, many=True)
-        return Response(serializer.data)
-
+            captures = Capture.objects.filter(cabin__id=cabin_id)
+            serializer = CaptureSerializer(captures, many=True)
+            return Response(serializer.data)
+        return result
 
 class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -113,7 +133,7 @@ class CreateCapture(View):
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
             return JsonResponse({'detail': 'successful'})
 
-class RegisterCabin(APIView):
+class RegisterCabin(CompanyAbstractView):
     """
         Register a cabin using a token.
     """
@@ -124,18 +144,20 @@ class RegisterCabin(APIView):
 
     def post(self, request):
         #Retrieve data
-        company = request.user.client.company
-        token_str = request.data['token']
-        try:
-            token = CabinToken.objects.get(id=token_str)
-        except:
-            return Response({'detail': 'Token not valid'})
-        else:
-            if token.is_used:
-                return Response({'detail': 'Token already used'})
+        result = self.check(request)
+        if self.company:
+            token_str = request.data['token']
+            try:
+                token = CabinToken.objects.get(id=token_str)
+            except:
+                return Response({'detail': 'Token not valid'})
             else:
-                cabin = Cabin(company= company, token = token)
-                cabin.save()
-                token.is_used = True
-                token.save()
-                return Response({'detail': 'successful', 'cabin_id': cabin.id})
+                if token.is_used:
+                    return Response({'detail': 'Token already used'})
+                else:
+                    cabin = Cabin(company= company, token = token)
+                    cabin.save()
+                    token.is_used = True
+                    token.save()
+                    return Response({'detail': 'successful', 'cabin_id': cabin.id})
+        return result

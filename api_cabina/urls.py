@@ -19,9 +19,9 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('auth_cabina.urls')),
-    path('api/data/', include('data_cabina.urls')),
-    path('web/', include('web_interface.urls')),
+    path('api/auth/', include('auth_cabina.urls', namespace = 'auth')),
+    path('api/data/', include('data_cabina.urls', namespace = 'data')),
+    path('web/', include('web_interface.urls', namespace = 'web')),
 ]
 
 

@@ -19,6 +19,11 @@ API for managing a biosecurity system
 - POST [token,temp,is_wearing_mask,is_image_saved,image_base64]  /api/data/captures_create/ --> Create a capture. Perm: (any).
 - POST [token]  /api/data/register_cabin/ --> Register cabin. Perm: (auth).
 
+### Web interface for admin
+
+- Management: /admin/
+- QR code generator: /web/create_token/
+
 ### Data Base Entity Relationship Diagram
 ![ERD](./docs/api_cabina_erd.png)
 
