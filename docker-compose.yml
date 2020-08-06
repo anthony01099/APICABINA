@@ -7,7 +7,14 @@ services:
        volumes:
          - ./:/usr/src/app
          - media:/usr/src/app/media
-       networks:
+
+        environment:
+         - "DATABASE_HOST=postgres"
+         - "DATABASE_NAME=cabina"
+         - "DATABASE_USERNAME=cabina"
+         - "DATABASE_PASSWORD=dbpassworD12!"
+
+        networks:
           - backend
        depends_on:
           - postgres
