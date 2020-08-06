@@ -47,3 +47,28 @@ To create an admin user for a company:
 4-Create a new Client object with the user and the company.</br>
 
 
+## Deploy
+
+To deploy this service:
+
+1-Log into the server.<br>
+2-Clone the repository with git clone git@github.com:jesuscol96/ApiCabina.git.<br>
+3-run : sudo docker-compose up -d <br>
+
+### To run commands inside the application container. 
+1-sudo docker container exec -it api_cabina bash.<br>
+2-Run your command.<br>
+
+### To run commands inside the database container.
+1-sudo docker container exec -it postgres bash.<br>
+2- Run your commands here.<br>
+
+### To update the code
+
+1- sudo docker-compose down.<br>
+2- Backup the media directory.<br>
+3- cd ..<br>
+4- rm -rf ApiCabina.<br>
+5- git clone git@github.com:jesuscol96/ApiCabina.git.<br>
+6- cd ApuCabina.<br>
+7- docker-compose up -d.
