@@ -14,7 +14,7 @@ class CreateToken(View):
         if request.user.is_superuser:
             return render(request,'web_interface/create_token.html')
         else:
-            HttpResponseForbidden()
+            return HttpResponseForbidden()
 
     def post(self, request):
         if request.user.is_superuser:
@@ -25,4 +25,4 @@ class CreateToken(View):
             }
             return render(request,'web_interface/visualize_token.html',context)
         else:
-            HttpResponseForbidden()
+            return HttpResponseForbidden()
