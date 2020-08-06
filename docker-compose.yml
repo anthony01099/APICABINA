@@ -1,0 +1,54 @@
+version: "3.5"
+
+services:
+   api_cabina:
+       image: israelpaez14/cabina:1.0
+       container_name: "api_cabina"
+       volumes:
+         - ./:/usr/src/app
+         - media:/usr/src/app/media
+       networks:
+          - backend
+       depends_on:
+          - postgres
+
+   postgres:
+       image: postgres:9
+       container_name: "postgres"
+       environment:
+           - "POSTGRES_PASSWORD=dbpassworD12!"
+           - "POSTGRES_USER=cabina"
+
+       volumes:
+          - postgresdata:/var/lib/postgresql/data
+       networks:
+          - backend
+
+
+   nginx:
+       image: nginx
+       container_name: "nginx"
+       volumes:
+          - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+          - ./GestionEntrenamiento/static/:/usr/src/app/static/:ro
+          - media:/usr/src/media:ro
+       ports:
+          - "80:80"
+       networks:
+          - bridge
+          - backend
+       depends_on:
+          - api_cabina
+
+networks:
+    backend:
+       name: "backend_network"
+    bridge:
+       name: "docker_bridge"
+
+
+volumes:
+       postgresdata:
+           name: "postgresdata"
+       media:
+           name: "media_volume"
