@@ -1,9 +1,9 @@
 version: "3.5"
 
 services:
-   kingston:
-       image: israelpaez14/cabina
-       container_name: "cabina_api"
+   api_cabina:
+       image: israelpaez14/cabina:1.0
+       container_name: "api_cabina"
        volumes:
          - ./:/usr/src/app
          - media:/usr/src/app/media
@@ -38,7 +38,7 @@ services:
           - bridge
           - backend
        depends_on:
-          - kingston
+          - api_cabina
 
 networks:
     backend:
@@ -48,7 +48,7 @@ networks:
 
 
 volumes:
-       mysqldata:
+       postgresdata:
            name: "postgresdata"
        media:
            name: "media_volume"
