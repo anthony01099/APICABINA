@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'web_interface',
     'data_cabina',
     'auth_cabina',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -73,7 +74,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'api_cabina.wsgi.application'
-
+ASGI_APPLICATION = "api_cabina.routing.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
