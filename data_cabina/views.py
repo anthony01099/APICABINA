@@ -76,6 +76,23 @@ class CompanyCaptures(CompanyAbstractView):
             return Response(serializer.data)
         return result
 
+class RetrieveCompanyCapture(CompanyAbstractView):
+    """
+        Returns captures for a particular company
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, capture_id):
+        result = self.check(request)
+        if self.company:
+            try:
+                capture = Capture.objects.get(id= capture_id, cabin__company=self.company)
+            except:
+                return Response({"detail": "Capture id not valid."})
+            else:
+                serializer = CaptureSerializer(capture)
+                return Response(serializer.data)
+        return result
 
 class CabinCaptures(CompanyAbstractView):
     """
