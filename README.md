@@ -1,7 +1,6 @@
 # ApiCabina
 API for managing a biosecurity system
 
-
 ### API Description
 
 - POST [username,password]  /api/auth/login/  --> Login with credentials. Perm: (any).
@@ -24,12 +23,17 @@ API for managing a biosecurity system
 - Management: /admin/
 - QR code generator: /web/create_token/
 
-### Data Base Entity Relationship Diagram
-![ERD](./docs/api_cabina_erd.png)
+### Notification system
+A simple notification system for alerts is implemented through django-channels (ASGI). For listing to notification follow the instructions:
+
+- Authenticate an user related to a company.
+- Start a websocket conection to ws://<server-domain>/ws/alerts/. The following cookies must be provided for the server to accept the conection: csrftoken, sessionid (use this key names).
+- Listen for incoming messages. They will provide the following keys with their values: capture_id, is_wearing_mask, temp.
+
+For production use, a redis server must be provided for interprocess communication.
 
 ### Run tests
-
-...
+    python manage.py test
 
 ### Run development server
     python manage.py runserver 80
@@ -37,6 +41,9 @@ API for managing a biosecurity system
 ### Seed database with test data
     python manage.py seed
 Test user: test1. Password: test_password
+
+## Data Base Entity Relationship Diagram
+![ERD](./docs/api_cabina_erd.png)
 
 ## User admin
 To create an admin user for a company:
@@ -55,7 +62,7 @@ To deploy this service:
 2-Clone the repository with git clone git@github.com:jesuscol96/ApiCabina.git.<br>
 3-run : sudo docker-compose up -d <br>
 
-### To run commands inside the application container. 
+### To run commands inside the application container.
 1-sudo docker container exec -it api_cabina bash.<br>
 2-Run your command.<br>
 

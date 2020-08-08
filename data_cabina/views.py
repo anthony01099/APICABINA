@@ -3,6 +3,7 @@ from django.http import Http404, JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
@@ -135,10 +136,21 @@ class CreateCapture(View):
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
 
             #Send alert to users
-            alert = 'Person with temp: ' + str(data['temp'])
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(str(cabin.company.id), {"type": "cabin_alert", "alert": alert,})
-
+            is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
+            if is_alert:
+                msg = {
+                        'type': 'cabin_alert',
+                        'capture_id': capture.id,
+                        'temp': data['temp'],
+                        'is_wearing_mask': data['is_wearing_mask'],
+                }
+                alert = 'Person with temp: ' + str(data['temp'])
+                try:
+                    channel_layer = get_channel_layer()
+                except:
+                    pass
+                else:
+                    async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
             return JsonResponse({'detail': 'successful'})
 
 class RegisterCabin(CompanyAbstractView):
