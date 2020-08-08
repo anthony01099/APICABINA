@@ -75,6 +75,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'api_cabina.wsgi.application'
 ASGI_APPLICATION = "api_cabina.routing.application"
+if DEBUG:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': "channels.layers.InMemoryChannelLayer",
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("localhost", 6379)],
+            },
+        },
+    }
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

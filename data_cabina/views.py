@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from api_cabina.permissions import IsSuperUser
 from .serializers import *
 from .models import *
@@ -131,6 +133,12 @@ class CreateCapture(View):
                 image_bytes = io.BytesIO()
                 image_bytes.write(data['image_base64'].encode())
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
+
+            #Send alert to users
+            alert = 'Person with temp: ' + str(data['temp'])
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(str(cabin.company.id), {"type": "cabin_alert", "alert": alert,})
+
             return JsonResponse({'detail': 'successful'})
 
 class RegisterCabin(CompanyAbstractView):
