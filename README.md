@@ -27,7 +27,7 @@ API for managing a biosecurity system
 A simple notification system for alerts is implemented through django-channels (ASGI). For listing to notification follow the instructions:
 
 - Authenticate an user related to a company.
-- Start a websocket conection to ws://<server-domain>/ws/alerts/. The following cookies must be provided for the server to accept the conection: csrftoken, sessionid (use this key names).
+- Start a websocket conection to ws://server-domain/ws/alerts/. The following cookies must be provided for the server to accept the conection: csrftoken, sessionid (use this key names).
 - Listen for incoming messages. They will provide the following keys with their values: capture_id, is_wearing_mask, temp.
 
 For production use, a redis server must be provided for interprocess communication.
