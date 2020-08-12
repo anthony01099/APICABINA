@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
    api_cabina:
-       image: israelpaez14/cabina:1.0
+       image: israelpaez14/cabina:2.0
        container_name: "api_cabina"
        volumes:
          - ./:/usr/src/app
