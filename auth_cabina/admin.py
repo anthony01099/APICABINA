@@ -11,9 +11,6 @@ from data_cabina.models import Company
 
 admin.site.unregister(User)
 
-admin.site.register(Client)
-
-
 class UserFilter(SimpleListFilter):
     title = 'is_staff'
     parameter_name = 'is_staff'
@@ -37,18 +34,21 @@ class UserFilter(SimpleListFilter):
         users = User.objects.filter(username__in=users)
         return users
 
-class UserForm(forms.ModelForm):
+class GeneralUserForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.TextInput(attrs={'readonly':'readonly'}),
+                               help_text=("Raw passwords are not stored, so there is no way to see "
+                                            "this user's password, but you can change the password "
+                                            "using <a href=\"../password/\">this form</a>."))
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class UserForm(GeneralUserForm):
     company = forms.CharField()
 
     def __init__(self,*args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = kwargs['instance']
-        '''
-        self.fields['password'] = ReadOnlyPasswordHashField(label=("Password"),
-        help_text=("Raw passwords are not stored, so there is no way to see "
-                    "this user's password, but you can change the password "
-                    "using <a href=\"../password/\">this form</a>."))
-        '''
         try:
             company_user = self.user.client.company
         except:
@@ -76,15 +76,14 @@ class UserForm(forms.ModelForm):
         return user
 
     class Meta:
-        model = User
-        fields = ['username','password','email', 'first_name', 'last_name', 'is_active', 'is_staff', 'date_joined', 'last_login','company']
+        fields = ['username','password','email', 'first_name', 'last_name','user_permissions', 'is_active', 'is_staff', 'date_joined', 'last_login','company']
 
 @admin.register(User)
 class UserAdmin(UserAdmin):
     view_on_site = False
     list_display = ('username', 'first_name', 'last_name', 'is_active', 'is_staff', 'date_joined', 'last_login')
     list_filter = (UserFilter,)
-    form = UserForm
+    form = GeneralUserForm
     fieldsets = [
         ('Data', {'fields': ('username', 'email', 'first_name', 'last_name', 'password')}),
         ('Activation/Deactivation', {'fields': ('is_active',)}),
@@ -94,9 +93,11 @@ class UserAdmin(UserAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         if request.user.is_superuser:
-            self.fieldsets[2] = ('Permissions', {'fields': ('is_staff', 'groups', 'is_superuser',)})
+            self.form = UserForm
+            self.fieldsets[2] = ('Permissions', {'fields': ('is_staff', 'user_permissions', 'is_superuser',)})
             self.fieldsets[3] = ('Select company', {'fields': ('company',)})
         else:
+            self.form = GeneralUserForm
             self.fieldsets[2] = ('Permissions', {'fields': ('is_staff',)})
             self.fieldsets[3] = (None,{'fields': ()})
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
@@ -107,7 +108,7 @@ class UserAdmin(UserAdmin):
         #Add permissions
         save_result = super().save_model(request, obj, form, change)
         if not change:
-            permission_names = ['add_user','change_user','delete_user']
+            permission_names = ['add_user','change_user','delete_user','delete_client']
             for permission_name in permission_names:
                 permission = Permission.objects.get(codename=permission_name)
                 obj.user_permissions.add(permission)
