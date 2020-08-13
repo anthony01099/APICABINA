@@ -87,7 +87,7 @@ else:
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [("localhost", 6379)],
+                "hosts": [("redis", 6379)],
             },
         },
     }
