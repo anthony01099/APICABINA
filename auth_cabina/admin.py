@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django import forms
 # Register your models here.
+from django.http import HttpResponseForbidden
 from django.contrib.admin import SimpleListFilter
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
@@ -84,30 +85,44 @@ class UserAdmin(UserAdmin):
     list_display = ('username', 'first_name', 'last_name', 'is_active', 'is_staff', 'date_joined', 'last_login')
     list_filter = (UserFilter,)
     form = GeneralUserForm
-    fieldsets = [
+    fieldsets = [(None,{'fields': ()})]
+    basic_fieldsets = [
         ('Data', {'fields': ('username', 'email', 'first_name', 'last_name', 'password')}),
-        ('Activation/Deactivation', {'fields': ('is_active',)}),
-        (None,{'fields': ()}),
-        (None,{'fields': ()}),
-    ]
+        ('Activation/Deactivation', {'fields': ('is_active',)}),]
+    superuser_fieldsets = basic_fieldsets.copy() + [('Permissions', {'fields': ('is_staff', 'user_permissions', 'is_superuser',)}), ('Select company', {'fields': ('company',)})]
+    user_fieldsets = basic_fieldsets.copy() + [('Permissions', {'fields': ('is_staff',)})]
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        user = User.objects.get(id=object_id)
+        #
         if request.user.is_superuser:
             self.form = UserForm
-            self.fieldsets[2] = ('Permissions', {'fields': ('is_staff', 'user_permissions', 'is_superuser',)})
-            self.fieldsets[3] = ('Select company', {'fields': ('company',)})
+            self.fieldsets = self.superuser_fieldsets
         else:
-            self.form = GeneralUserForm
-            self.fieldsets[2] = ('Permissions', {'fields': ('is_staff',)})
-            self.fieldsets[3] = (None,{'fields': ()})
+            if request.user.client.company.id == user.client.company.id:
+                self.form = GeneralUserForm
+                self.fieldsets = self.user_fieldsets
+            else:
+                return HttpResponseForbidden()
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        user = User.objects.get(id=object_id)
+        #
+        if request.user.is_superuser:
+            return super().delete_view(request, object_id, extra_context)
+        elif request.user.client.company.id == user.client.company.id:
+            return super().delete_view(request, object_id, extra_context)
+        else:
+            return HttpResponseForbidden()
 
     def save_model(self, request, obj, form, change):
         if request.user.is_superuser:
             return super().save_model(request, obj, form, change)
-        #Add permissions
-        save_result = super().save_model(request, obj, form, change)
+
         if not change:
+            save_result = super().save_model(request, obj, form, change)
+            #Add permissions
             permission_names = ['add_user','change_user','delete_user','delete_client']
             for permission_name in permission_names:
                 permission = Permission.objects.get(codename=permission_name)
@@ -115,4 +130,10 @@ class UserAdmin(UserAdmin):
             #Assign company to new user
             company = Client.objects.filter(user=request.user).first().company
             client = Client.objects.create(user = obj, company = company)
+        else:
+            if request.user.client.company.id == obj.client.company.id:
+                save_result = super().save_model(request, obj, form, change)
+            else:
+                save_result = None
+
         return save_result
