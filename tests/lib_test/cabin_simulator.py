@@ -39,4 +39,4 @@ class CabinSimulador:
         image_bytes = io.BytesIO()
         image.save(image_bytes, "JPEG")
         img_str = base64.b64encode(image_bytes.getvalue())
-        return str(img_str)
+        return img_str.decode('ascii')
