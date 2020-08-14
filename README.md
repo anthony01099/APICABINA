@@ -11,7 +11,7 @@ API for managing a biosecurity system
 - GET /api/data/company/company_id/ --> Get companies info. Perm: (super user).
 - GET /api/data/company_data/ --> Get company info from current user. Perm: (auth).
 - GET /api/data/cabins_company/ --> Get cabins for a company. Perm: (auth).
-- GET /api/data/cabins_company/capture_id --> Get a specified capture by id. Perm: (auth).
+- GET /api/data/captures_company/capture_id --> Get a specified capture by id. Perm: (auth).
 - GET /api/data/captures_company/ --> Get captures for a company. Perm: (auth).
 - GET /api/data/captures_cabin/cabin_id/ --> Get captures for a cabin. Perm: (auth).
 - GET /api/data/captures --> Get all system's captures. Perm: (super user).
