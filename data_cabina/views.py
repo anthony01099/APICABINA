@@ -7,6 +7,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, status
+from rest_framework.pagination import PageNumberPagination
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from api_cabina.permissions import IsSuperUser
@@ -26,6 +27,7 @@ class CompanyAbstractView(APIView):
         Abstract view for retrieving company data
     """
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class =  PageNumberPagination
 
     def __init__(self,*args,**kwargs):
         super(CompanyAbstractView,self).__init__(*args,**kwargs)
@@ -36,6 +38,33 @@ class CompanyAbstractView(APIView):
             self.company = request.user.client.company
         except:
             return Response({'detail': 'No companies related to current user.'})
+
+    @property
+    def paginator(self):
+        """
+        The paginator instance associated with the view, or `None`.
+        """
+        if not hasattr(self, '_paginator'):
+            if self.pagination_class is None:
+                self._paginator = None
+            else:
+                self._paginator = self.pagination_class()
+        return self._paginator
+
+    def paginate_queryset(self, queryset):
+         """
+         Return a single page of results, or `None` if pagination is disabled.
+         """
+         if self.paginator is None:
+             return None
+         return self.paginator.paginate_queryset(queryset, self.request, view=self)
+
+    def get_paginated_response(self, data):
+         """
+         Return a paginated style `Response` object for the given output data.
+         """
+         assert self.paginator is not None
+         return self.paginator.get_paginated_response(data)
 
 class CompanyData(CompanyAbstractView):
     """
@@ -58,8 +87,9 @@ class CompanyCabins(CompanyAbstractView):
         result = self.check(request)
         if self.company:
             cabins = Cabin.objects.filter(company = self.company)
+            cabins = self.paginate_queryset(cabins)
             serializer = CabinSerializer(cabins, many=True)
-            return Response(serializer.data)
+            return self.get_paginated_response(serializer.data)
         return result
 
 class CompanyCaptures(CompanyAbstractView):
@@ -72,8 +102,9 @@ class CompanyCaptures(CompanyAbstractView):
         result = self.check(request)
         if self.company:
             captures = Capture.objects.filter(cabin__company=self.company).order_by('-created_at')
+            captures = self.paginate_queryset(captures)
             serializer = CaptureSerializer(captures, many=True)
-            return Response(serializer.data)
+            return self.get_paginated_response(serializer.data)
         return result
 
 class RetrieveCompanyCapture(CompanyAbstractView):
@@ -112,8 +143,9 @@ class CabinCaptures(CompanyAbstractView):
                 return Response({"detail": "You do not have access to this"})
 
             captures = Capture.objects.filter(cabin__id=cabin_id).order_by('-created_at')
+            captures = self.paginate_queryset(captures)
             serializer = CaptureSerializer(captures, many=True)
-            return Response(serializer.data)
+            return self.get_paginated_response(serializer.data)
         return result
 
 class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
