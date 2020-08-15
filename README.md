@@ -80,3 +80,26 @@ To deploy this service:
 5- git clone git@github.com:jesuscol96/ApiCabina.git.<br>
 6- cd ApuCabina.<br>
 7- docker-compose up -d.
+
+
+### Update script
+Run the update script in the folder api-cabina as root user.
+sudo ./update_code.sh
+
+#!/bin/bash
+
+export PATH="/snap/bin/:$PATH"
+
+cd ApiCabina
+
+docker-compose down
+
+cd ..
+
+rm -Rf ApiCabina
+
+git clone git@github.com:jesuscol96/ApiCabina.git
+
+cd  ApiCabina
+
+docker-compose up -d
