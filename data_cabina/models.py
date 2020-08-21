@@ -29,6 +29,8 @@ class Cabin(BaseModel):
     """
     company = models.ForeignKey('Company', on_delete=models.CASCADE)
     token = models.ForeignKey('CabinToken', on_delete=models.CASCADE)
+    wifi_ssid = models.CharField(max_length=100, null=True)
+    wifi_password = models.CharField(max_length=100, null=True)
 
 
 class Capture(BaseModel):

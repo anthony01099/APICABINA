@@ -17,5 +17,6 @@ urlpatterns = [
     path('captures_cabin/<int:cabin_id>/', CabinCaptures.as_view(), name = 'CabinCaptures'),
     path('captures_create/', CreateCapture.as_view(), name = 'CreateCapture'),
     path('register_cabin/', RegisterCabin.as_view(), name = 'RegisterCabin'),
+    path('cabin_wifi_info/', CabinWifiInfo.as_view(), name = 'CabinWifiInfo'),
     path('', include(router.urls)),
 ]

@@ -14,6 +14,7 @@ from api_cabina.permissions import IsSuperUser
 from .serializers import *
 from .models import *
 
+
 class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows cabin companies to be seen.
@@ -22,15 +23,16 @@ class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CompanySerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
+
 class CompanyAbstractView(APIView):
     """
         Abstract view for retrieving company data
     """
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class =  PageNumberPagination
+    pagination_class = PageNumberPagination
 
-    def __init__(self,*args,**kwargs):
-        super(CompanyAbstractView,self).__init__(*args,**kwargs)
+    def __init__(self, *args, **kwargs):
+        super(CompanyAbstractView, self).__init__(*args, **kwargs)
         self.company = None
 
     def check(self, request):
@@ -52,30 +54,33 @@ class CompanyAbstractView(APIView):
         return self._paginator
 
     def paginate_queryset(self, queryset):
-         """
-         Return a single page of results, or `None` if pagination is disabled.
-         """
-         if self.paginator is None:
-             return None
-         return self.paginator.paginate_queryset(queryset, self.request, view=self)
+        """
+        Return a single page of results, or `None` if pagination is disabled.
+        """
+        if self.paginator is None:
+            return None
+        return self.paginator.paginate_queryset(queryset, self.request, view=self)
 
     def get_paginated_response(self, data):
-         """
-         Return a paginated style `Response` object for the given output data.
-         """
-         assert self.paginator is not None
-         return self.paginator.get_paginated_response(data)
+        """
+        Return a paginated style `Response` object for the given output data.
+        """
+        assert self.paginator is not None
+        return self.paginator.get_paginated_response(data)
+
 
 class CompanyData(CompanyAbstractView):
     """
         Returns data for the user's company
     """
+
     def get(self, request):
         result = self.check(request)
         if self.company:
             serializer = CompanySerializer(self.company)
             return Response(serializer.data)
         return result
+
 
 class CompanyCabins(CompanyAbstractView):
     """
@@ -86,11 +91,12 @@ class CompanyCabins(CompanyAbstractView):
     def get(self, request):
         result = self.check(request)
         if self.company:
-            cabins = Cabin.objects.filter(company = self.company)
+            cabins = Cabin.objects.filter(company=self.company)
             cabins = self.paginate_queryset(cabins)
             serializer = CabinSerializer(cabins, many=True)
             return self.get_paginated_response(serializer.data)
         return result
+
 
 class CompanyCaptures(CompanyAbstractView):
     """
@@ -107,6 +113,7 @@ class CompanyCaptures(CompanyAbstractView):
             return self.get_paginated_response(serializer.data)
         return result
 
+
 class RetrieveCompanyCapture(CompanyAbstractView):
     """
         Returns captures for a particular company
@@ -117,13 +124,14 @@ class RetrieveCompanyCapture(CompanyAbstractView):
         result = self.check(request)
         if self.company:
             try:
-                capture = Capture.objects.get(id= capture_id, cabin__company=self.company)
+                capture = Capture.objects.get(id=capture_id, cabin__company=self.company)
             except:
                 return Response({"detail": "Capture id not valid."})
             else:
                 serializer = CaptureSerializer(capture)
                 return Response(serializer.data)
         return result
+
 
 class CabinCaptures(CompanyAbstractView):
     """
@@ -148,6 +156,7 @@ class CabinCaptures(CompanyAbstractView):
             return self.get_paginated_response(serializer.data)
         return result
 
+
 class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows cabin captures to be seen.
@@ -156,11 +165,13 @@ class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CaptureSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
+
 @method_decorator(csrf_exempt, name='dispatch')
 class CreateCapture(View):
     """
         Create a capture with a post request.
     """
+
     def get(self, request):
         return JsonResponse({'detail': 'Error. Must use post to create a capture'})
 
@@ -168,7 +179,7 @@ class CreateCapture(View):
         data = json.loads(request.body)
         # Get cabin instance
         try:
-            cabin = Cabin.objects.get(token__id = data['token'])
+            cabin = Cabin.objects.get(token__id=data['token'])
         except:
             return JsonResponse({'detail': 'failed, invalid token'})
         else:
@@ -184,14 +195,14 @@ class CreateCapture(View):
                 image_bytes.write(data['image_base64'].encode())
                 capture.image.save(str(capture.id) + '.txt', image_bytes)
 
-            #Send alert to users
+            # Send alert to users
             is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
             if is_alert:
                 msg = {
-                        'type': 'cabin_alert',
-                        'capture_id': capture.id,
-                        'temp': data['temp'],
-                        'is_wearing_mask': data['is_wearing_mask'],
+                    'type': 'cabin_alert',
+                    'capture_id': capture.id,
+                    'temp': data['temp'],
+                    'is_wearing_mask': data['is_wearing_mask'],
                 }
                 alert = 'Person with temp: ' + str(data['temp'])
                 try:
@@ -201,6 +212,23 @@ class CreateCapture(View):
                 else:
                     async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
             return JsonResponse({'detail': 'successful'})
+
+
+class CabinWifiInfo(View):
+    def get(self, request):
+        token = request.GET.get("token")
+        if token is None:
+            return JsonResponse({'detail': 'failed, invalid token'})
+
+        cabin_obj = Cabin.objects.filter(token=token)
+        if not cabin_obj.exists():
+            return JsonResponse({'detail': 'failed, invalid token'})
+
+        cabin_obj = cabin_obj.first()
+        ssid = cabin_obj.wifi_ssid
+        password = cabin_obj.wifi_password
+        return JsonResponse({'ssid': ssid, 'password': password})
+
 
 class RegisterCabin(CompanyAbstractView):
     """
@@ -212,7 +240,7 @@ class RegisterCabin(CompanyAbstractView):
         return Response({'detail': 'Error. Must use post to register a cabin'})
 
     def post(self, request):
-        #Retrieve data
+        # Retrieve data
         result = self.check(request)
         if self.company:
             token_str = request.data['token']
@@ -224,7 +252,7 @@ class RegisterCabin(CompanyAbstractView):
                 if token.is_used:
                     return Response({'detail': 'Token already used'})
                 else:
-                    cabin = Cabin(company= self.company, token = token)
+                    cabin = Cabin(company=self.company, token=token)
                     cabin.save()
                     token.is_used = True
                     token.save()
