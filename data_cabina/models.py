@@ -54,4 +54,7 @@ class Setting(models.Model):
     """
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    save_images = models.BooleanField(default=False)  # Specify if images should be saved from cabins
+    save_all = models.BooleanField(default=False)  # Specify if images should be saved from cabins
+
+    def __str__(self):
+        return str(self.company) + " " + str(self.save_all)

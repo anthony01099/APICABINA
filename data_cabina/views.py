@@ -184,8 +184,8 @@ class CreateCapture(View):
             return JsonResponse({'detail': 'failed, invalid token'})
         else:
             company = cabin.company
-            settings = Setting.objects.get(company=company)
-            if settings.save_images:
+            setting = Setting.objects.get(company=company)
+            if setting.save_images:
 
                 # Create capture object
                 capture = Capture(cabin=cabin,
