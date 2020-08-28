@@ -185,7 +185,7 @@ class CreateCapture(View):
         else:
             company = cabin.company
             setting = Setting.objects.get(company=company)
-            if setting.save_images:
+            if setting.save_all:
 
                 # Create capture object
                 capture = Capture(cabin=cabin,
