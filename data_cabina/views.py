@@ -183,34 +183,38 @@ class CreateCapture(View):
         except:
             return JsonResponse({'detail': 'failed, invalid token'})
         else:
-            # Create capture object
-            capture = Capture(cabin=cabin,
-                              temp=data['temp'],
-                              is_wearing_mask=data['is_wearing_mask'],
-                              is_image_saved=data['is_image_saved'])
-            capture.save()
-            # Create image file
-            if data['is_image_saved']:
-                image_bytes = io.BytesIO()
-                image_bytes.write(data['image_base64'].encode())
-                capture.image.save(str(capture.id) + '.txt', image_bytes)
+            company = cabin.company
+            settings = Setting.objects.get(company=company)
+            if settings.save_images:
 
-            # Send alert to users
-            is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
-            if is_alert:
-                msg = {
-                    'type': 'cabin_alert',
-                    'capture_id': capture.id,
-                    'temp': data['temp'],
-                    'is_wearing_mask': data['is_wearing_mask'],
-                }
-                alert = 'Person with temp: ' + str(data['temp'])
-                try:
-                    channel_layer = get_channel_layer()
-                except:
-                    pass
-                else:
-                    async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
+                # Create capture object
+                capture = Capture(cabin=cabin,
+                                  temp=data['temp'],
+                                  is_wearing_mask=data['is_wearing_mask'],
+                                  is_image_saved=data['is_image_saved'])
+                capture.save()
+                # Create image file
+                if data['is_image_saved']:
+                    image_bytes = io.BytesIO()
+                    image_bytes.write(data['image_base64'].encode())
+                    capture.image.save(str(capture.id) + '.txt', image_bytes)
+
+                # Send alert to users
+                is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
+                if is_alert:
+                    msg = {
+                        'type': 'cabin_alert',
+                        'capture_id': capture.id,
+                        'temp': data['temp'],
+                        'is_wearing_mask': data['is_wearing_mask'],
+                    }
+                    alert = 'Person with temp: ' + str(data['temp'])
+                    try:
+                        channel_layer = get_channel_layer()
+                    except:
+                        pass
+                    else:
+                        async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
             return JsonResponse({'detail': 'successful'})
 
 
