@@ -18,7 +18,8 @@ API for managing a biosecurity system
 - GET /api/data/captures/capture_id/ --> Get capture info. Perm: (super user).
 - POST [token,temp,is_wearing_mask,is_image_saved,image_base64]  /api/data/captures_create/ --> Create a capture. Perm: (any).
 - POST [token]  /api/data/register_cabin/ --> Register cabin. Perm: (auth).
-
+- POST [token]  /api/data/associate_token/ --> Assoc Token for notifications. Perm: (auth).
+- POST [token]  /api/data/delete_token/ --> Delete Token. Perm: (auth).
 ### Web interface for admin
 
 - Management: /admin/
