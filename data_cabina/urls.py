@@ -19,5 +19,6 @@ urlpatterns = [
     path('register_cabin/', RegisterCabin.as_view(), name='RegisterCabin'),
     path('cabin_wifi_info/', CabinWifiInfo.as_view(), name='CabinWifiInfo'),
     path('associate_token/', AssociateUserToken.as_view(), name='AssociateToken'),
+    path('delete_token/', RemoveUserToken.as_view(), name='RemoveUserToken'),
     path('', include(router.urls)),
 ]
