@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'r=@pt818)!!cg$z2x2v^ibhr+gx@3%3gw%!75_r)%8ll2ir((p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -158,18 +158,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'..','media')
 MEDIA_URL = '/media/'
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'logfile': {
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['logfile'],
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'logfile': {
+#             'class': 'logging.FileHandler',
+#             'filename': '/var/log/django.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['logfile'],
+#         },
+#     },
+# }
