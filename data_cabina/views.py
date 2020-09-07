@@ -272,9 +272,25 @@ class AssociateUserToken(CompanyAbstractView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        token = request.data["token"]
-        token_obj = UserToken()
-        token_obj.token = token
-        token_obj.user = request.user
-        token_obj.save()
-        return JsonResponse({'detail': 'successful'})
+        try:
+            token = request.data["token"]
+            token_obj = UserToken()
+            token_obj.token = token
+            token_obj.user = request.user
+            token_obj.save()
+            return JsonResponse({'detail': 'successful'}, status=status.HTTP_201_CREATED)
+        except:
+            return JsonResponse({'error': "Error while saving token"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RemoveUserToken(CompanyAbstractView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            token = request.data["token"]
+            token_obj = UserToken.objects.get(token=token)
+            token_obj.delete()
+            return JsonResponse({'detail': 'successful'}, status=status.HTTP_200_OK)
+        except:
+            return JsonResponse({'detail': "Error while unsubscribing"}, status=status.HTTP_400_BAD_REQUEST)
