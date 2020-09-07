@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync
 from api_cabina.permissions import IsSuperUser
 from .serializers import *
 from .models import *
-from .utils import get_comapany_tokens
+from .utils import get_comapany_tokens, send_notification_to_token_list
 
 
 class CompanyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -212,7 +212,7 @@ class CreateCapture(View):
                     }
                     alert = 'Person with temp: ' + str(data['temp'])
                     tokens_to_send_notification = get_comapany_tokens(cabin.company)
-                    print(tokens_to_send_notification)
+                    send_notification_to_token_list(tokens_to_send_notification, msg)
                     try:
                         channel_layer = get_channel_layer()
                     except:
