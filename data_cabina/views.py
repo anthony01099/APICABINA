@@ -288,8 +288,13 @@ class RemoveUserToken(CompanyAbstractView):
 
     def post(self, request):
         try:
+
             token = request.data["token"]
             token_obj = UserToken.objects.get(token=token)
+
+            if request.user != token_obj.user:
+                return JsonResponse({'detail': "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
             token_obj.delete()
             return JsonResponse({'detail': 'successful'}, status=status.HTTP_200_OK)
         except:
