@@ -11,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from api_cabina.permissions import IsSuperUser
+from auth_cabina.models import UserToken
 from .serializers import *
 from .models import *
 from .utils import get_comapany_tokens, send_notification_to_token_list
@@ -113,7 +114,6 @@ class CompanyCaptures(CompanyAbstractView):
             serializer = CaptureSerializer(captures, many=True)
             return self.get_paginated_response(serializer.data)
         return result
-
 
 
 class RetrieveCompanyCapture(CompanyAbstractView):
@@ -266,3 +266,15 @@ class RegisterCabin(CompanyAbstractView):
                     token.save()
                     return Response({'detail': 'successful', 'cabin_id': cabin.id})
         return result
+
+
+class AssociateUserToken(CompanyAbstractView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        token = request.data["token"]
+        token_obj = UserToken()
+        token_obj.token = token
+        token_obj.user = request.user
+        token_obj.save()
+        return JsonResponse({'detail': 'successful'})

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from data_cabina.models import *
 from auth_cabina.models import *
 
+
 class Command(BaseCommand):
     help = 'Seeds the database.'
 
@@ -38,7 +39,7 @@ class Command(BaseCommand):
             self.user = User(username='test1')
             self.user.set_password("test_password")
             self.user.save()
-            client = Client.objects.create(user=self.user,company=self.company)
+            client = Client.objects.create(user=self.user, company=self.company)
         else:
             self.user = user
             self.company = self.user.client.company
@@ -48,8 +49,8 @@ class Command(BaseCommand):
         self.cabins = []
         for i in range(num_cabins):
             n = random.randint(0, 10000)
-            token = CabinToken.objects.create(is_used = True)
-            cabin = Cabin(company=self.company, token = token)
+            token = CabinToken.objects.create(is_used=True)
+            cabin = Cabin(company=self.company, token=token)
             cabin.save()
             self.cabins.append(cabin)
 
