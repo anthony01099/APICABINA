@@ -1,5 +1,7 @@
+from django.contrib.auth.models import User
 from django.db import models
-from api_cabina.models import *
+
+from api_cabina.models import BaseModel
 from .utils import media_upload_to, generate_token
 from django.conf import settings
 
@@ -58,3 +60,11 @@ class Setting(models.Model):
 
     def __str__(self):
         return str(self.company) + " " + str(self.save_all)
+
+
+class Client(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return "%s - %s" % (str(self.company), str(self.user))

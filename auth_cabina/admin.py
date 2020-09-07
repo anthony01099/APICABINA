@@ -7,11 +7,12 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
-from auth_cabina.models import Client
+from auth_cabina.models import UserToken
+from data_cabina.models import Client
 from data_cabina.models import Company, Setting
 
 admin.site.unregister(User)
-
+admin.site.register(UserToken)
 
 class UserFilter(SimpleListFilter):
     title = 'is_staff'
