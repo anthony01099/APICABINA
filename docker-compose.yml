@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
    api_cabina:
-       image: israelpaez14/cabina:2.0
+       image: israelpaez14/cabina:3.0
        container_name: "api_cabina"
        volumes:
          - ./:/usr/src/app
@@ -20,7 +20,7 @@ services:
 
 
    daphne:
-        image: israelpaez14/cabina:2.0
+        image: israelpaez14/cabina:3.0
         container_name: "daphne"
         volumes:
           - ./:/usr/src/app
