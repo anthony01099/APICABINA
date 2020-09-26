@@ -47,7 +47,10 @@ class Capture(BaseModel):
 
     @property
     def image_base64(self):
-        return self.image.read()
+        try:
+            return self.image.read()
+        except:
+            return ''
 
 
 class Setting(models.Model):

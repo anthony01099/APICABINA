@@ -47,21 +47,14 @@ class SettingFilter(SimpleListFilter):
         if request.user.is_superuser:
             return tuple([])
         company = Client.objects.filter(user=request.user).first().company
-
-        setting = Setting.objects.get(company=company)
-        print(setting)
-
-        related_objects = (setting,)
-        return [(related_obj.id, str(related_obj)) for related_obj in related_objects]
+        settings = Setting.objects.filter(company=company)
+        return [(setting.id, str(setting)) for setting in settings]
 
     def queryset(self, request, queryset):
         if request.user.is_superuser:
             return queryset
         company = Client.objects.filter(user=request.user).first().company
-
         setting = Setting.objects.filter(company=company)
-        print(setting)
-
         return setting
 
 
@@ -118,25 +111,33 @@ class UserForm(GeneralUserForm):
     class Meta:
         fields = ['username', 'password', 'email', 'first_name', 'last_name', 'user_permissions', 'is_active', 'is_staff', 'date_joined', 'last_login', 'company']
 
+class SuperUserSettingsForm(forms.ModelForm):
+    class Meta:
+        fields = ['company', 'save_all']
+
+class UserSettingsForm(forms.ModelForm):
+    class Meta:
+        fields = ['save_all']
 
 @admin.register(Setting)
 class SettingAdmin(ModelAdmin):
     list_filter = (SettingFilter,)
     list_display = ('save_all',)
     fieldsets = [(None, {'fields': ()})]
-
+    form = UserSettingsForm
     basic_fieldsets = [('Activation/Deactivation', {'fields': ('save_all',)}), ]
     superuser_fieldsets = basic_fieldsets.copy() + [("Company", {"fields": ("company",)},), ]
     user_fieldsets = basic_fieldsets.copy()
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        user = User.objects.get(id=object_id)
+        setting = Setting.objects.get(id=object_id)
         #
         if request.user.is_superuser:
-
+            self.form = SuperUserSettingsForm
             self.fieldsets = self.superuser_fieldsets
         else:
-            if request.user.client.company.id == user.client.company.id:
+            if request.user.client.company.id == setting.company.id:
+                self.form = UserSettingsForm
                 self.fieldsets = self.user_fieldsets
             else:
                 return HttpResponseForbidden()
@@ -148,6 +149,7 @@ class SettingAdmin(ModelAdmin):
             return super().save_model(request, obj, form, change)
 
         if not change:
+            obj.company = request.user.client.company
             save_result = super().save_model(request, obj, form, change)
         else:
             if request.user.client.company.id == obj.company.id:

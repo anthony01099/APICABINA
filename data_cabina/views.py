@@ -186,40 +186,39 @@ class CreateCapture(View):
             return JsonResponse({'detail': 'failed, invalid token'})
         else:
             company = cabin.company
-            setting = Setting.objects.get(company=company)
-            if setting.save_all:
+            db_settings = Setting.objects.filter(company=company)
+            is_image_saved = True if len(db_settings) == 0 else db_settings.latest('created_at').save_all
+            # Create capture object
+            capture = Capture(cabin=cabin,
+                              temp=data['temp'],
+                              is_wearing_mask=data['is_wearing_mask'],
+                              is_image_saved=is_image_saved)
+            capture.save()
+            # Create image file
+            if is_image_saved:
+                image_bytes = io.BytesIO()
+                image_bytes.write(data['image_base64'].encode())
+                capture.image.save(str(capture.id) + '.txt', image_bytes)
 
-                # Create capture object
-                capture = Capture(cabin=cabin,
-                                  temp=data['temp'],
-                                  is_wearing_mask=data['is_wearing_mask'],
-                                  is_image_saved=data['is_image_saved'])
-                capture.save()
-                # Create image file
-                if data['is_image_saved']:
-                    image_bytes = io.BytesIO()
-                    image_bytes.write(data['image_base64'].encode())
-                    capture.image.save(str(capture.id) + '.txt', image_bytes)
-
-                # Send alert to users
-                is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
-                if is_alert:
-                    msg = {
-                        'type': 'cabin_alert',
-                        'capture_id': capture.id,
-                        'temp': data['temp'],
-                        'is_wearing_mask': data['is_wearing_mask'],
-                    }
-                    alert = 'Person with temp: ' + str(data['temp'])
-                    tokens_to_send_notification = get_comapany_tokens(cabin.company)
-                    send_notification_to_token_list(tokens_to_send_notification, msg)
-                    try:
-                        channel_layer = get_channel_layer()
-                    except:
-                        pass
-                    else:
-                        async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
-            return JsonResponse({'detail': 'successful'})
+            # Send alert to users
+            is_alert = (float(data['temp']) >= settings.ALERT_TEMPERATURE) or (not data['is_wearing_mask'])
+            if is_alert:
+                msg = {
+                    'type': 'cabin_alert',
+                    'capture_id': capture.id,
+                    'temp': data['temp'],
+                    'is_wearing_mask': is_image_saved,
+                }
+                alert = 'Person with temp: ' + str(data['temp'])
+                tokens_to_send_notification = get_comapany_tokens(cabin.company)
+                send_notification_to_token_list(tokens_to_send_notification, msg)
+                try:
+                    channel_layer = get_channel_layer()
+                except:
+                    pass
+                else:
+                    async_to_sync(channel_layer.group_send)(str(cabin.company.id), msg)
+        return JsonResponse({'detail': 'successful'})
 
 
 class CabinWifiInfo(View):
@@ -320,6 +319,7 @@ class BoothControlView(APIView):
         #Send data
         msg = {
                 'type': 'booth_info',
+                'operation': request.data['operation'],
                 'is_booth_on': request.data['is_booth_on'],
                 'is_autocleaning': request.data['is_autocleaning'],
         }
