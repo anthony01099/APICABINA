@@ -2,11 +2,12 @@ version: "3.5"
 
 services:
    api_cabina:
-       image: israelpaez14/cabina:3.0
+       image: jesuscol96/api_cabina:latest
        container_name: "api_cabina"
        volumes:
          - ./:/usr/src/app
          - media:/usr/src/app/media
+         - static:/usr/src/app/static
        environment:
           - "DATABASE_HOST=postgres"
           - "DATABASE_NAME=cabina"
@@ -20,7 +21,7 @@ services:
 
 
    daphne:
-        image: israelpaez14/cabina:3.0
+        image: jesuscol96/api_cabina:latest
         container_name: "daphne"
         volumes:
           - ./:/usr/src/app
@@ -59,6 +60,7 @@ services:
        volumes:
           - $PWD/redis-data:/var/lib/redis
           - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+          - redis-data:/data
 
        environment:
           - REDIS_REPLICATION_MODE=master
@@ -71,7 +73,7 @@ services:
        container_name: "nginx"
        volumes:
           - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-          - ./static/:/usr/src/app/static/:ro
+          - static:/usr/src/app/static/:ro
        ports:
           - "3000:80"
        networks:
@@ -91,3 +93,7 @@ volumes:
            name: "postgresdata"
        media:
            name: "media_volume"
+       static:
+          name: "staticfiles"
+       redis-data:
+           name: "redis-data"
