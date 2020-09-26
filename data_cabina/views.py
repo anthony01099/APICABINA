@@ -299,3 +299,38 @@ class RemoveUserToken(CompanyAbstractView):
             return JsonResponse({'detail': 'successful'}, status=status.HTTP_200_OK)
         except:
             return JsonResponse({'detail': "Error while unsubscribing"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BoothControlView(APIView):
+    """
+        Abstract view for retrieving company dat
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        booth_token = request.data['token']
+        #Check if token is valid for a booth
+        try:
+            booth = Cabin.objects.get(token__id=booth_token)
+        except:
+            return Response({'detail': "invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+        #Check if the booth belongs to the logged user
+        if booth.company.id != request.user.client.company.id:
+            return Response({'detail': "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+        #Send data
+        msg = {
+                'type': 'booth_info',
+                'is_booth_on': request.data['is_booth_on'],
+                'is_autocleaning': request.data['is_autocleaning'],
+        }
+        try:
+                channel_layer = get_channel_layer()
+        except:
+            pass
+        else:
+            try:
+                async_to_sync(channel_layer.group_send)(booth_token, msg)
+            except:
+                return Response({'detail': 'error sending data'})
+            else:
+                return Response({'detail': 'successful'})

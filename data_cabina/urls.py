@@ -20,5 +20,6 @@ urlpatterns = [
     path('cabin_wifi_info/', CabinWifiInfo.as_view(), name='CabinWifiInfo'),
     path('associate_token/', AssociateUserToken.as_view(), name='AssociateToken'),
     path('delete_token/', RemoveUserToken.as_view(), name='RemoveUserToken'),
+    path('booth_control/', BoothControlView.as_view(), name='BoothControlView'),
     path('', include(router.urls)),
 ]
