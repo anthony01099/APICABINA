@@ -20,6 +20,8 @@ API for managing a biosecurity system
 - POST [token]  /api/data/register_cabin/ --> Register cabin. Perm: (auth).
 - POST [token]  /api/data/associate_token/ --> Assoc Token for notifications. Perm: (auth).
 - POST [token]  /api/data/delete_token/ --> Delete an User Token. Perm: (auth).
+- POST [token,operation (0: on/off, 1: is_autocleaning), is_booth_on, is_autocleaning] /api/data/booth_control/ --> Control booth remotely (auth)
+- WEBSOCKET /api/booth_messages/<str:booth_token>/ --> ws connection with booths to send instructions.
 ### Web interface for admin
 
 - Management: /admin/
