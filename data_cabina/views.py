@@ -307,12 +307,17 @@ class BoothControlView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        booth_token = request.data['token']
+        booth_id = request.data['booth_id']
         #Check if token is valid for a booth
         try:
-            booth = Cabin.objects.get(token__id=booth_token)
+            booth = Cabin.objects.get(id=booth_id)
+            booth_token = booth.token.id
         except:
-            return Response({'detail': "invalid token"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': "invalid booth id"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if booth.company.id != request.user.client.company.id:
+                return Response({'detail': "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
         #Check if the booth belongs to the logged user
         if booth.company.id != request.user.client.company.id:
             return Response({'detail': "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
