@@ -6,13 +6,7 @@ import data_cabina.routing
 application = ProtocolTypeRouter({
     # (http->django views is added by default)
     'websocket': AuthMiddlewareStack(
-        URLRouter(
-            alerts.routing.websocket_urlpatterns
-        )
+        URLRouter(alerts.routing.websocket_urlpatterns +  data_cabina.routing.websocket_urlpatterns)
     ),
-    'websocket': AuthMiddlewareStack(
-        URLRouter(
-            data_cabina.routing.websocket_urlpatterns
-        )
-    ),
+
 })
