@@ -13,6 +13,13 @@ class CabinSerializer(serializers.ModelSerializer):
         model = Cabin
         fields = ['id','company']
 
+class CompanyCabinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cabin
+        fields = ['id','token','wifi_ssid']
+        depth = 1
+
+
 class CaptureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Capture

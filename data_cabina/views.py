@@ -95,7 +95,7 @@ class CompanyCabins(CompanyAbstractView):
         if self.company:
             cabins = Cabin.objects.filter(company=self.company)
             cabins = self.paginate_queryset(cabins)
-            serializer = CabinSerializer(cabins, many=True)
+            serializer = CompanyCabinSerializer(cabins, many=True)
             return self.get_paginated_response(serializer.data)
         return result
 
