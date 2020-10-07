@@ -33,6 +33,7 @@ class Cabin(BaseModel):
     token = models.ForeignKey('CabinToken', on_delete=models.CASCADE)
     wifi_ssid = models.CharField(max_length=100, null=True)
     wifi_password = models.CharField(max_length=100, null=True)
+    language = models.CharField(max_length=5, default='en')
 
 
 class Capture(BaseModel):

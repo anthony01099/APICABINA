@@ -221,7 +221,7 @@ class CreateCapture(View):
         return JsonResponse({'detail': 'successful'})
 
 
-class CabinWifiInfo(View):
+class CabinInfo(View):
     def get(self, request):
         token = request.GET.get("token")
         if token is None:
@@ -234,7 +234,8 @@ class CabinWifiInfo(View):
         cabin_obj = cabin_obj.first()
         ssid = cabin_obj.wifi_ssid
         password = cabin_obj.wifi_password
-        return JsonResponse({'ssid': ssid, 'password': password})
+        language = cabin_obj.language
+        return JsonResponse({'ssid': ssid, 'password': password, 'language': language,})
 
 
 class RegisterCabin(CompanyAbstractView):
