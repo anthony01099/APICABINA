@@ -111,14 +111,33 @@ class CompanyCaptures(CompanyAbstractView):
         if self.company:
             captures = Capture.objects.filter(cabin__company=self.company).order_by('-created_at')
             captures = self.paginate_queryset(captures)
-            serializer = CaptureSerializer(captures, many=True)
+            serializer = SimpleCaptureSerializer(captures, many=True)
             return self.get_paginated_response(serializer.data)
+        return result
+
+
+class CompanyCaptureImage(CompanyAbstractView):
+    """
+        Returns capture image for a particular capture id
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, capture_id):
+        result = self.check(request)
+        if self.company:
+            try:
+                capture = Capture.objects.get(id=capture_id)
+            except:
+                return Response({'detail': 'Invalid capture id'})
+            else:
+                serializer = CaptureImageSerializer(capture)
+                return Response(serializer.data)
         return result
 
 
 class RetrieveCompanyCapture(CompanyAbstractView):
     """
-        Returns captures for a particular company
+        Returns capture for a particular company
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -154,7 +173,7 @@ class CabinCaptures(CompanyAbstractView):
 
             captures = Capture.objects.filter(cabin__id=cabin_id).order_by('-created_at')
             captures = self.paginate_queryset(captures)
-            serializer = CaptureSerializer(captures, many=True)
+            serializer = SimpleCaptureSerializer(captures, many=True)
             return self.get_paginated_response(serializer.data)
         return result
 
@@ -164,7 +183,7 @@ class CaptureViewSet(viewsets.ReadOnlyModelViewSet):
     API endpoint that allows cabin captures to be seen.
     """
     queryset = Capture.objects.all().order_by('-created_at')
-    serializer_class = CaptureSerializer
+    serializer_class = SimpleCaptureSerializer
     permission_classes = [permissions.IsAuthenticated, IsSuperUser]
 
 

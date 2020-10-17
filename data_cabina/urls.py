@@ -10,6 +10,7 @@ router.register(r'captures', CaptureViewSet)
 
 # Wire up our API using automatic URL routing.
 urlpatterns = [
+    path('capture_company/<int:capture_id>/', CompanyCaptureImage.as_view(), name='CompanyCaptureImage'),
     path('company_data/', CompanyData.as_view(), name='CompanyData'),
     path('cabins_company/', CompanyCabins.as_view(), name='CompanyCabins'),
     path('captures_company/', CompanyCaptures.as_view(), name='CompanyCaptures'),
