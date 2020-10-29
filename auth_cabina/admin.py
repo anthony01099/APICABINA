@@ -198,21 +198,22 @@ class UserAdmin(UserAdmin):
             return HttpResponseForbidden()
 
     def save_model(self, request, obj, form, change):
-        if request.user.is_superuser:
-            return super().save_model(request, obj, form, change)
-
         if not change:
             save_result = super().save_model(request, obj, form, change)
             # Add permissions
-            permission_names = ['add_user', 'change_user', 'delete_user', 'delete_client']
+            permission_names = ['add_user', 'change_user', 'delete_user', 'delete_client', 'change_cabin', 'view_cabin', 'add_setting', 'change_setting', 'view_setting']
             for permission_name in permission_names:
-                permission = Permission.objects.get(codename=permission_name)
+                permission = Permission.objects.filter(codename=permission_name).first()
                 obj.user_permissions.add(permission)
+
+            if request.user.is_superuser:
+                return save_result
+
             # Assign company to new user
             company = Client.objects.filter(user=request.user).first().company
             client = Client.objects.create(user=obj, company=company)
         else:
-            if request.user.client.company.id == obj.client.company.id:
+            if (request.user.client.company.id == obj.client.company.id) or request.user.is_superuser:
                 save_result = super().save_model(request, obj, form, change)
             else:
                 save_result = None

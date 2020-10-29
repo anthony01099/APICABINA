@@ -16,6 +16,9 @@ class Company(BaseModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Companies"
+
 
 class CabinToken(models.Model):
     """
@@ -23,6 +26,10 @@ class CabinToken(models.Model):
     """
     id = models.CharField(max_length=settings.CABIN_TOKEN_LENGTH, primary_key=True, default=generate_token, editable=False)
     is_used = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Booth token"
+        verbose_name_plural = "Booth tokens"
 
 
 class Cabin(BaseModel):
@@ -34,6 +41,10 @@ class Cabin(BaseModel):
     wifi_ssid = models.CharField(max_length=100, null=True)
     wifi_password = models.CharField(max_length=100, null=True)
     language = models.CharField(max_length=5, default='en')
+
+    class Meta:
+        verbose_name = "Booth"
+        verbose_name_plural = "Booths"
 
 
 class Capture(BaseModel):
