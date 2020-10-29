@@ -213,7 +213,9 @@ class UserAdmin(UserAdmin):
             company = Client.objects.filter(user=request.user).first().company
             client = Client.objects.create(user=obj, company=company)
         else:
-            if (request.user.client.company.id == obj.client.company.id) or request.user.is_superuser:
+            if request.user.is_superuser:
+                save_result = super().save_model(request, obj, form, change)
+            elif (request.user.client.company.id == obj.client.company.id):
                 save_result = super().save_model(request, obj, form, change)
             else:
                 save_result = None
